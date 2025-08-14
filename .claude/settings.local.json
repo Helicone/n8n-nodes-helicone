@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.n8n.io)",
+      "WebFetch(domain:docs.helicone.ai)"
+    ],
+    "deny": []
+  }
+}

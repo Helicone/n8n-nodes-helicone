@@ -1,0 +1,36 @@
+{
+  "name": "Test Helicone Node",
+  "nodes": [
+    {
+      "parameters": {
+        "provider": "openai",
+        "openaiApiKey": "{{ $env.OPENAI_API_KEY }}",
+        "openaiModel": "gpt-4o-mini",
+        "messages": "[{\"role\": \"user\", \"content\": \"Hello! Please tell me a short joke.\"}]",
+        "maxTokens": 100,
+        "temperature": 0.7,
+        "additionalOptions": {
+          "customProperties": "{\"test\": \"true\", \"environment\": \"development\"}",
+          "sessionId": "test-session-123",
+          "sessionName": "Test Session",
+          "enableCaching": false
+        }
+      },
+      "id": "helicone-test",
+      "name": "Helicone Test",
+      "type": "helicone",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "heliconeApi": {
+          "id": "helicone-credentials",
+          "name": "Helicone API"
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {},
+  "versionId": "test-version"
+}
