@@ -11,6 +11,13 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 ## Setup Instructions
 
 ### 1. Build and Link the Node
+Clone the repository and install dependencies:
+```bash
+git clone https://github.com/juliettech13/helicone-n8n-node.git
+cd helicone-n8n-node
+```
+
+Build the node and link it:
 ```bash
 npm install
 npm run build
