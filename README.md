@@ -108,6 +108,7 @@ The node supports various Helicone features:
     },
     "sessionId": "session-uuid-here",
     "sessionName": "Customer Support Chat",
+    "sessionPath": "support/chat",
     "enableCaching": true,
     "cacheTtl": 3600
   }
@@ -131,7 +132,7 @@ The node supports various Helicone features:
 - **URL:** `https://oai.helicone.ai/openai/deployments/{deployment}/chat/completions`
 - **Authentication:** API key in api-key header
 - **Additional Required Fields:**
-  - Azure domain
+  - Azure domain (without https://)
   - Deployment name
   - API version
 
@@ -151,7 +152,7 @@ All requests are automatically logged in your Helicone dashboard for observabili
 ### Common Issues
 
 1. **Authentication Errors**
-   - Verify your Helicone API key is correct
+   - Verify your Helicone API key is correct (starts with `pk-` for write access)
    - Ensure your provider API key is valid
    - Check if you're using the correct base URL for EU customers
 

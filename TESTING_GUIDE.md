@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-1. **Helicone API Key**: Get your API key from [Helicone Dashboard](https://app.helicone.ai/)
+1. **Helicone API Key**: Get your API key from [Helicone Dashboard](https://helicone.ai/dashboard)
 2. **OpenAI API Key**: For testing OpenAI provider
 3. **Anthropic API Key**: For testing Anthropic provider (optional)
 4. **Azure OpenAI**: For testing Azure provider (optional)
@@ -134,7 +134,7 @@ Add custom properties to track your requests:
 
 1. **Node not found**: Ensure you've run `npm link` and restarted n8n
 2. **Build errors**: Check TypeScript compilation with `npm run build`
-3. **Credential errors**: Verify API keys are correct
+3. **Credential errors**: Verify API keys are correct (Helicone key should start with `pk-`)
 4. **Network errors**: Check internet connection and API endpoints
 
 ### Debug Mode
