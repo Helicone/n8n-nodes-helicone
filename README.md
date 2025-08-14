@@ -8,34 +8,31 @@ This is an n8n community node that allows you to make LLM requests through Helic
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-1. Go to **Settings > Community Nodes**
-2. Select **Install**
-3. Enter `n8n-nodes-helicone` in **Enter npm package name**
-4. Agree to the risks of using community nodes and select **Install**
+## Setup Instructions
 
-After installation, the Helicone node will be available in your n8n workflow editor.
+### 1. Build and Link the Node
+```bash
+npm install
+npm run build
+npm link
+```
 
-## Prerequisites
+### 2. Start n8n
+```bash
+n8n start --tunnel
+```
 
-Before using this node, you need:
+### 3. Access n8n Interface
+Open your browser and go to: `http://localhost:5678`
 
-1. A [Helicone account](https://helicone.ai) and API key
-2. API credentials for your chosen LLM provider:
-   - OpenAI API key (for OpenAI models)
-   - Anthropic API key (for Claude models)
-   - Azure OpenAI credentials (for Azure OpenAI deployments)
+## 4. Add Helicone API Credentials
 
-## Configuration
+  - Go to **Credentials > New**
+  - Select **Helicone API**
+  - Enter your Helicone API key (get it from [Helicone Dashboard](https://helicone.ai/dashboard))
+  - For EU customers, change the Base URL to `https://eu.api.helicone.ai`
 
-### Credentials Setup
-
-1. **Helicone API Credentials:**
-   - Go to **Credentials > New**
-   - Select **Helicone API**
-   - Enter your Helicone API key (get it from [Helicone Dashboard](https://helicone.ai/dashboard))
-   - For EU customers, change the Base URL to `https://eu.api.helicone.ai`
-
-### Node Configuration
+### 5. Create a workflow and add your Helicone node
 
 1. **LLM Provider:** Choose between OpenAI, Anthropic, or Azure OpenAI
 2. **Provider Credentials:** Enter the API key/credentials for your chosen provider
@@ -53,67 +50,6 @@ The node supports various Helicone features:
 - **Custom Properties:** Add metadata to requests for filtering and analysis
 - **Session Tracking:** Group related requests with Session ID, Path, and Name
 - **Caching:** Enable response caching with configurable TTL
-
-## Usage Examples
-
-### Basic OpenAI Request
-
-```json
-{
-  "provider": "openai",
-  "openaiApiKey": "sk-...",
-  "openaiModel": "gpt-4o-mini",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Hello, how are you?"
-    }
-  ],
-  "maxTokens": 100,
-  "temperature": 0.7
-}
-```
-
-### Anthropic Request with System Message
-
-```json
-{
-  "provider": "anthropic",
-  "anthropicApiKey": "sk-ant-...",
-  "anthropicModel": "claude-3-opus-20240229",
-  "systemMessage": "You are a helpful assistant.",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Explain quantum computing"
-    }
-  ],
-  "maxTokens": 500
-}
-```
-
-### Request with Helicone Features
-
-```json
-{
-  "provider": "openai",
-  "openaiApiKey": "sk-...",
-  "openaiModel": "gpt-4o-mini",
-  "messages": [...],
-  "additionalOptions": {
-    "customProperties": {
-      "environment": "production",
-      "user_id": "12345",
-      "feature": "chat"
-    },
-    "sessionId": "session-uuid-here",
-    "sessionName": "Customer Support Chat",
-    "sessionPath": "support/chat",
-    "enableCaching": true,
-    "cacheTtl": 3600
-  }
-}
-```
 
 ## Supported Providers
 
