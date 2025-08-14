@@ -33,7 +33,7 @@ Before using this node, you need:
    - Go to **Credentials > New**
    - Select **Helicone API**
    - Enter your Helicone API key (get it from [Helicone Dashboard](https://helicone.ai/dashboard))
-   - For EU customers, change the Base URL to `https://api.eu.helicone.ai`
+   - For EU customers, change the Base URL to `https://eu.api.helicone.ai`
 
 ### Node Configuration
 
