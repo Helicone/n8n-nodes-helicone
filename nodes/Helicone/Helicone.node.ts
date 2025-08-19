@@ -303,7 +303,7 @@ export class LmChatHelicone implements INodeType {
 
      // Create the LangChain ChatOpenAI instance
      const chatModel = new ChatOpenAI({
-       modelName,
+       modelName: `${provider}/${modelName}`,
        temperature: options.temperature ?? 0.7,
        maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
        topP: options.topP,

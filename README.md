@@ -1,6 +1,6 @@
 # n8n-nodes-helicone
 
-This is an n8n community node that allows you to make LLM requests through Helicone's proxy for observability and monitoring.
+This is an n8n community node that provides a LangChain-compatible Helicone Chat Model for use in AI chains and workflows.
 
 [Helicone](https://helicone.ai) is an open-source LLM observability platform that helps developers monitor, debug, and improve production AI applications.
 
@@ -35,53 +35,83 @@ Open your browser and go to: `http://localhost:5678`
 ## 4. Add Helicone API Credentials
 
   - Go to **Credentials > New**
-  - Select **Helicone API**
+  - Select **Helicone LLM Observability**
   - Enter your Helicone API key (get it from [Helicone Dashboard](https://helicone.ai/dashboard))
-  - For EU customers, change the Base URL to `https://eu.api.helicone.ai`
+  - The base URL is automatically set to `https://ai-gateway.helicone.ai/v1`
 
-### 5. Create a workflow and add your Helicone node
+### 5. Create a workflow and add your Helicone Chat Model node
 
+The Helicone Chat Model node is designed to work as part of AI chains. It outputs a LangChain-compatible model that can be used with other AI nodes.
+
+**Node Configuration:**
 1. **LLM Provider:** Choose between OpenAI, Anthropic, or Azure OpenAI
-2. **Provider Credentials:** Enter the API key/credentials for your chosen provider
-3. **Model Configuration:** Specify the model to use (e.g., `gpt-4o-mini`, `claude-3-opus-20240229`)
-4. **Request Parameters:**
-   - **Messages:** JSON array of messages to send to the LLM
-   - **Max Tokens:** Maximum number of tokens to generate
+2. **Model:** Specify the model to use (e.g., `gpt-4o-mini`, `claude-3-opus-20240229`)
+3. **Options:**
    - **Temperature:** Sampling temperature (0-2)
-   - **System Message:** (Anthropic only) System message for the conversation
+   - **Max Tokens:** Maximum number of tokens to generate
+   - **Top P:** Nucleus sampling parameter (0-1)
+   - **Frequency Penalty:** Control repetition (-2 to 2)
+   - **Presence Penalty:** Control new topics (-2 to 2)
+   - **Response Format:** Text or JSON
+   - **Timeout:** Request timeout in milliseconds
+   - **Max Retries:** Number of retry attempts
 
-### Additional Helicone Features
-
-The node supports various Helicone features:
-
-- **Custom Properties:** Add metadata to requests for filtering and analysis
-- **Session Tracking:** Group related requests with Session ID, Path, and Name
+**Helicone Options:**
+- **Custom Properties:** JSON object for metadata and filtering
+- **Session Tracking:** Session ID, Path, and Name for grouping requests
 - **Caching:** Enable response caching with configurable TTL
+
+## How It Works
+
+The Helicone Chat Model node uses the [Helicone AI Gateway](https://ai-gateway.helicone.ai) to route requests to your chosen LLM provider. This provides:
+
+- **Unified Interface:** Single endpoint for multiple providers
+- **Automatic Logging:** All requests are logged in your Helicone dashboard
+- **Observability:** Track usage, performance, and costs across providers
+- **Caching:** Reduce costs with intelligent response caching
 
 ## Supported Providers
 
+The node supports requests to all major LLM providers through the Helicone AI Gateway:
+
 ### OpenAI
-- **URL:** `https://oai.helicone.ai/v1/chat/completions`
-- **Authentication:** Bearer token in Authorization header
 - **Models:** All OpenAI chat completion models
+- **Authentication:** Via Helicone API key
 
 ### Anthropic
-- **URL:** `https://anthropic.helicone.ai/v1/messages`
-- **Authentication:** API key in x-api-key header
 - **Models:** All Claude models
-- **Special Features:** Separate system message field
+- **Authentication:** Via Helicone API key
 
 ### Azure OpenAI
-- **URL:** `https://oai.helicone.ai/openai/deployments/{deployment}/chat/completions`
-- **Authentication:** API key in api-key header
-- **Additional Required Fields:**
-  - Azure domain (without https://)
-  - Deployment name
-  - API version
+- **Models:** All Azure OpenAI deployments
+- **Authentication:** Via Helicone API key
+
+## Usage in AI Chains
+
+This node is designed to be used as part of n8n's AI chain functionality:
+
+1. **Add the Helicone Chat Model node** to your workflow
+2. **Configure the model** with your desired parameters
+3. **Connect it to other AI nodes** that accept `ai_languageModel` inputs
+4. **Use in chains** for complex AI workflows
+
+The node outputs a LangChain-compatible model that can be used with:
+- Chat nodes
+- Chain nodes
+- Other AI processing nodes
+
+## Helicone Features
+
+The node supports various Helicone observability features:
+
+- **Custom Properties:** Add metadata to requests for filtering and analysis
+- **Session Tracking:** Group related requests with Session ID, Path, and Name
+- **Caching:** Enable response caching with configurable TTL (up to 365 days)
+- **Automatic Logging:** All requests are automatically logged in your Helicone dashboard
 
 ## Response Format
 
-The node returns the complete response from the LLM provider, including:
+The node returns a LangChain ChatOpenAI model instance that can be used with other AI nodes. The underlying responses include:
 
 - Generated content
 - Token usage information
@@ -96,18 +126,15 @@ All requests are automatically logged in your Helicone dashboard for observabili
 
 1. **Authentication Errors**
    - Verify your Helicone API key is correct (starts with `pk-` for write access)
-   - Ensure your provider API key is valid
-   - Check if you're using the correct base URL for EU customers
+   - Ensure your Helicone account has access to the chosen provider
 
-2. **Request Failures**
-   - Validate your messages JSON format
-   - Ensure model names are correct
-   - Check token limits for your chosen model
+2. **Model Errors**
+   - Validate your model name is correct for the chosen provider
+   - Check if the model is available in your Helicone account
 
-3. **Azure OpenAI Issues**
-   - Verify your Azure domain format (without https://)
-   - Confirm deployment name and API version
-   - Ensure your Azure API key has proper permissions
+3. **Chain Integration Issues**
+   - Ensure the node is properly connected to other AI nodes
+   - Verify the output type is compatible with downstream nodes
 
 ### Getting Help
 
@@ -124,3 +151,4 @@ MIT
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [Helicone documentation](https://docs.helicone.ai)
 - [Helicone GitHub](https://github.com/Helicone/helicone)
+- [LangChain documentation](https://js.langchain.com/)
