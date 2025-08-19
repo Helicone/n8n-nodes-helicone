@@ -1,405 +1,325 @@
 import {
-	IExecuteFunctions,
-	INodeExecutionData,
-	INodeType,
-	INodeTypeDescription,
-	IDataObject,
-	NodeOperationError,
-	IHttpRequestOptions,
-  NodeConnectionType,
-  INodeOutputConfiguration,
-  INodeInputConfiguration,
-} from 'n8n-workflow';
+  type INodeType,
+  type INodeTypeDescription,
+  type ISupplyDataFunctions,
+  type SupplyData,
+} from "n8n-workflow";
 
-export class Helicone implements INodeType {
-	description: INodeTypeDescription = {
-		displayName: 'Helicone',
-		name: 'helicone',
-		icon: 'file:helicone.svg',
-		group: ['transform'],
-		version: 1,
-		subtitle: '={{$parameter["provider"] + " LLM Request"}}',
-		description: 'Make LLM requests through Helicone proxy for observability',
-		defaults: {
-			name: 'Helicone',
-		},
-		inputs: ['main'] as (NodeConnectionType | INodeInputConfiguration)[],
-		outputs: ['main'] as (NodeConnectionType | INodeOutputConfiguration)[],
-		credentials: [
-			{
-				name: 'heliconeApi',
-				required: true,
-			},
-		],
-		properties: [
-			// LLM Provider Selection
-			{
-				displayName: 'LLM Provider',
-				name: 'provider',
-				type: 'options',
-				options: [
-					{
-						name: 'OpenAI',
-						value: 'openai',
-					},
-					{
-						name: 'Anthropic',
-						value: 'anthropic',
-					},
-					{
-						name: 'Azure OpenAI',
-						value: 'azure',
-					},
-				],
-				default: 'openai',
-				description: 'The LLM provider to use',
-			},
+import { ChatOpenAI } from "@langchain/openai";
 
-			// OpenAI Configuration
-			{
-				displayName: 'OpenAI API Key',
-				name: 'openaiApiKey',
-				type: 'string',
-				typeOptions: {
-					password: true,
-				},
-				displayOptions: {
-					show: {
-						provider: ['openai'],
-					},
-				},
-				default: '',
-				description: 'Your OpenAI API key',
-				required: true,
-			},
+export class LmChatHelicone implements INodeType {
+  description: INodeTypeDescription = {
+    displayName: "Helicone Chat Model",
+    name: "lmChatHelicone",
+    icon: { light: "file:helicone.svg", dark: "file:helicone.svg" },
+    group: ["ai"],
+    version: [1],
+    description: "For advanced usage with an AI chain through Helicone proxy",
+    defaults: {
+      name: "Helicone Chat Model",
+    },
+    codex: {
+      categories: ["AI"],
+      subcategories: {
+        AI: ["Language Models"],
+      },
+      resources: {
+        primaryDocumentation: [
+          {
+            url: "https://docs.helicone.ai/getting-started/quick-start",
+          },
+        ],
+      },
+    },
 
-			{
-				displayName: 'Model',
-				name: 'openaiModel',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['openai'],
-					},
-				},
-				default: 'gpt-4o-mini',
-				description: 'The OpenAI model to use',
-				required: true,
-			},
+    // Sub-nodes have no inputs
+    inputs: [],
 
-			// Anthropic Configuration
-			{
-				displayName: 'Anthropic API Key',
-				name: 'anthropicApiKey',
-				type: 'string',
-				typeOptions: {
-					password: true,
-				},
-				displayOptions: {
-					show: {
-						provider: ['anthropic'],
-					},
-				},
-				default: '',
-				description: 'Your Anthropic API key',
-				required: true,
-			},
+    // Sub-nodes output ai_languageModel
+    outputs: ['ai_languageModel'] as any,
+    outputNames: ["Model"],
+    credentials: [
+      {
+        name: "heliconeApi",
+        required: true,
+      },
+    ],
+    properties: [
+      {
+        displayName: "LLM Provider",
+        name: "provider",
+        type: "options",
+        options: [
+          {
+            name: "OpenAI",
+            value: "openai",
+          },
+          {
+            name: "Anthropic",
+            value: "anthropic",
+          },
+          {
+            name: "Azure OpenAI",
+            value: "azure",
+          },
+        ],
+        default: "openai",
+        description: "The LLM provider to use through Helicone proxy",
+      },
+      {
+        displayName: "Model",
+        name: "model",
+        type: "string",
+        description: "Select the model to use to generate the completion",
+        default: "gpt-4o-mini",
+      },
+      {
+        displayName: "Options",
+        name: "options",
+        placeholder: "Add Option",
+        description: "Additional options to add",
+        type: "collection",
+        default: {},
+        options: [
+          {
+            displayName: "Frequency Penalty",
+            name: "frequencyPenalty",
+            default: 0,
+            typeOptions: { maxValue: 2, minValue: -2, numberPrecision: 1 },
+            description:
+              "Use this option to control the chances of the model repeating itself. Higher values reduce the chance of the model repeating itself.",
+            type: "number",
+          },
+          {
+            displayName: "Maximum Number of Tokens",
+            name: "maxTokens",
+            default: -1,
+            description:
+              "Enter the maximum number of tokens used, which sets the completion length.",
+            type: "number",
+            typeOptions: {
+              maxValue: 32768,
+            },
+          },
+          {
+            displayName: "Response Format",
+            name: "responseFormat",
+            default: "text",
+            type: "options",
+            options: [
+              {
+                name: "Text",
+                value: "text",
+                description: "Regular text response",
+              },
+              {
+                name: "JSON",
+                value: "json_object",
+                description: "JSON ensures the model returns valid JSON",
+              },
+            ],
+          },
+          {
+            displayName: "Presence Penalty",
+            name: "presencePenalty",
+            default: 0,
+            typeOptions: { maxValue: 2, minValue: -2, numberPrecision: 1 },
+            description:
+              "Use this option to control the chances of the model talking about new topics. Higher values increase the chance of the model talking about new topics.",
+            type: "number",
+          },
+          {
+            displayName: "Sampling Temperature",
+            name: "temperature",
+            default: 0.7,
+            typeOptions: { maxValue: 2, minValue: 0, numberPrecision: 1 },
+            description:
+              "Use this option to control the randomness of the sampling process. A higher temperature creates more diverse sampling, but increases the risk of hallucinations.",
+            type: "number",
+          },
+          {
+            displayName: "Timeout",
+            name: "timeout",
+            default: 360000,
+            description: "Enter the maximum request time in milliseconds.",
+            type: "number",
+          },
+          {
+            displayName: "Max Retries",
+            name: "maxRetries",
+            default: 2,
+            description:
+              "Enter the maximum number of times to retry a request.",
+            type: "number",
+          },
+          {
+            displayName: "Top P",
+            name: "topP",
+            default: 1,
+            typeOptions: { maxValue: 1, minValue: 0, numberPrecision: 1 },
+            description:
+              "Use this option to set the probability the completion should use. Use a lower value to ignore less probable options.",
+            type: "number",
+          },
+        ],
+      },
+      {
+        displayName: "Helicone Options",
+        name: "heliconeOptions",
+        placeholder: "Add Helicone Option",
+        description: "Helicone-specific options for observability and caching",
+        type: "collection",
+        default: {},
+        options: [
+          {
+            displayName: "Custom Properties",
+            name: "customProperties",
+            type: "json",
+            default: "{}",
+            description:
+              "Custom properties to add to the request (JSON object)",
+          },
+          {
+            displayName: "Session ID",
+            name: "sessionId",
+            type: "string",
+            default: "",
+            description: "Session ID for tracking related requests",
+          },
+          {
+            displayName: "Session Path",
+            name: "sessionPath",
+            type: "string",
+            default: "",
+            description: "Session path for hierarchical tracking",
+          },
+          {
+            displayName: "Session Name",
+            name: "sessionName",
+            type: "string",
+            default: "",
+            description: "Human-readable session name",
+          },
+          {
+            displayName: "Enable Caching",
+            name: "enableCaching",
+            type: "boolean",
+            default: false,
+            description: "Whether to enable response caching",
+          },
+          {
+            displayName: "Cache TTL (seconds)",
+            name: "cacheTtl",
+            type: "number",
+            default: 604800,
+            description:
+              "Cache time-to-live in seconds (max 31536000 = 365 days)",
+            displayOptions: {
+              show: {
+                enableCaching: [true],
+              },
+            },
+          },
+        ],
+      },
+    ],
+  };
 
-			{
-				displayName: 'Model',
-				name: 'anthropicModel',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['anthropic'],
-					},
-				},
-				default: 'claude-3-opus-20240229',
-				description: 'The Anthropic model to use',
-				required: true,
-			},
+  async supplyData(
+    this: ISupplyDataFunctions,
+    itemIndex: number
+  ): Promise<SupplyData> {
+    const credentials = await this.getCredentials("heliconeApi");
 
-			// Azure OpenAI Configuration
-			{
-				displayName: 'Azure API Key',
-				name: 'azureApiKey',
-				type: 'string',
-				typeOptions: {
-					password: true,
-				},
-				displayOptions: {
-					show: {
-						provider: ['azure'],
-					},
-				},
-				default: '',
-				description: 'Your Azure OpenAI API key',
-				required: true,
-			},
+    const provider = this.getNodeParameter("provider", itemIndex) as string;
+    const modelName = this.getNodeParameter("model", itemIndex) as string;
 
-			{
-				displayName: 'Azure Domain',
-				name: 'azureDomain',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['azure'],
-					},
-				},
-				default: '',
-				description: 'Your Azure OpenAI domain (without https://, e.g., myresource.openai.azure.com)',
-				required: true,
-			},
+    const options = this.getNodeParameter("options", itemIndex, {}) as {
+      frequencyPenalty?: number;
+      maxTokens?: number;
+      maxRetries: number;
+      timeout: number;
+      presencePenalty?: number;
+      temperature?: number;
+      topP?: number;
+      responseFormat?: "text" | "json_object";
+    };
 
-			{
-				displayName: 'Deployment Name',
-				name: 'azureDeploymentName',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['azure'],
-					},
-				},
-				default: '',
-				description: 'Your Azure OpenAI deployment name',
-				required: true,
-			},
+    const heliconeOptions = this.getNodeParameter(
+      "heliconeOptions",
+      itemIndex,
+      {}
+    ) as {
+      customProperties?: string;
+      sessionId?: string;
+      sessionPath?: string;
+      sessionName?: string;
+      enableCaching?: boolean;
+      cacheTtl?: number;
+    };
 
-			{
-				displayName: 'API Version',
-				name: 'azureApiVersion',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['azure'],
-					},
-				},
-				default: '2023-12-01-preview',
-				description: 'The Azure OpenAI API version to use',
-				required: true,
-			},
+    let baseURL: string;
+    baseURL = "https://ai-gateway.helicone.ai/v1";
 
-			// Common LLM Parameters
-			{
-				displayName: 'Messages',
-				name: 'messages',
-				type: 'json',
-				default: '[{"role": "user", "content": "Hello!"}]',
-				description: 'The messages to send to the LLM (JSON array format)',
-				required: true,
-			},
+    // Build Helicone custom headers
+    const customHeaders: Record<string, string> = {
+      "Helicone-Auth": `Bearer ${credentials.apiKey}`,
+    };
 
-			{
-				displayName: 'System Message',
-				name: 'systemMessage',
-				type: 'string',
-				displayOptions: {
-					show: {
-						provider: ['anthropic'],
-					},
-				},
-				default: '',
-				description: 'System message for Anthropic (optional)',
-			},
+    // Build Helicone custom properties
+    if (heliconeOptions.customProperties) {
+      try {
+        const customProps = JSON.parse(heliconeOptions.customProperties);
+        for (const [key, value] of Object.entries(customProps)) {
+          customHeaders[`Helicone-Property-${key}`] = String(value);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
-			{
-				displayName: 'Max Tokens',
-				name: 'maxTokens',
-				type: 'number',
-				default: 100,
-				description: 'Maximum number of tokens to generate',
-			},
+    // Add session tracking headers
+    if (heliconeOptions.sessionId) {
+      customHeaders["Helicone-Session-Id"] = heliconeOptions.sessionId;
+    }
+    if (heliconeOptions.sessionPath) {
+      customHeaders["Helicone-Session-Path"] = heliconeOptions.sessionPath;
+    }
+    if (heliconeOptions.sessionName) {
+      customHeaders["Helicone-Session-Name"] = heliconeOptions.sessionName;
+    }
 
-			{
-				displayName: 'Temperature',
-				name: 'temperature',
-				type: 'number',
-				typeOptions: {
-					minValue: 0,
-					maxValue: 2,
-					numberStepSize: 0.1,
-				},
-				default: 1,
-				description: 'Sampling temperature (0-2)',
-			},
+    // Add caching headers
+    if (heliconeOptions.enableCaching) {
+      customHeaders["Helicone-Cache-Enabled"] = "true";
+      const cacheTtl = heliconeOptions.cacheTtl || 604800;
+      customHeaders["Cache-Control"] = `max-age=${cacheTtl}`;
+    }
 
-			// Helicone Features
-			{
-				displayName: 'Additional Options',
-				name: 'additionalOptions',
-				type: 'collection',
-				placeholder: 'Add Option',
-				default: {},
-				options: [
-					{
-						displayName: 'Custom Properties',
-						name: 'customProperties',
-						type: 'json',
-						default: '{}',
-						description: 'Custom properties to add to the request (JSON object)',
-					},
-					{
-						displayName: 'Session ID',
-						name: 'sessionId',
-						type: 'string',
-						default: '',
-						description: 'Session ID for tracking related requests',
-					},
-					{
-						displayName: 'Session Path',
-						name: 'sessionPath',
-						type: 'string',
-						default: '',
-						description: 'Session path for hierarchical tracking',
-					},
-					{
-						displayName: 'Session Name',
-						name: 'sessionName',
-						type: 'string',
-						default: '',
-						description: 'Human-readable session name',
-					},
-					{
-						displayName: 'Enable Caching',
-						name: 'enableCaching',
-						type: 'boolean',
-						default: false,
-						description: 'Whether to enable response caching',
-					},
-					{
-						displayName: 'Cache TTL (seconds)',
-						name: 'cacheTtl',
-						type: 'number',
-						default: 604800,
-						description: 'Cache time-to-live in seconds (max 31536000 = 365 days)',
-						displayOptions: {
-							show: {
-								enableCaching: [true],
-							},
-						},
-					},
-				],
-			},
-		],
-	};
+    // Add provider-specific headers
+    if (provider === "anthropic") {
+      customHeaders["anthropic-version"] = "2023-06-01";
+    }
 
-	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
-		const items = this.getInputData();
-		const returnData: INodeExecutionData[] = [];
+     // Create the LangChain ChatOpenAI instance
+     const chatModel = new ChatOpenAI({
+       modelName,
+       temperature: options.temperature ?? 0.7,
+       maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
+       topP: options.topP,
+       frequencyPenalty: options.frequencyPenalty,
+       presencePenalty: options.presencePenalty,
+       timeout: options.timeout ?? 60000,
+       maxRetries: options.maxRetries ?? 2,
+       configuration: {
+         baseURL,
+         defaultHeaders: customHeaders
+       },
+     });
 
-		const credentials = await this.getCredentials('heliconeApi');
-
-		for (let i = 0; i < items.length; i++) {
-			try {
-				const provider = this.getNodeParameter('provider', i) as string;
-				const messages = JSON.parse(this.getNodeParameter('messages', i) as string);
-				const maxTokens = this.getNodeParameter('maxTokens', i) as number;
-				const temperature = this.getNodeParameter('temperature', i) as number;
-				const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
-
-				let url: string;
-				let headers: IDataObject = {
-					'Content-Type': 'application/json',
-					'Helicone-Auth': `Bearer ${credentials.apiKey}`,
-				};
-				let body: IDataObject = {};
-
-				// Add custom properties as headers
-				if (additionalOptions.customProperties) {
-					const customProps = JSON.parse(additionalOptions.customProperties as string);
-					for (const [key, value] of Object.entries(customProps)) {
-						headers[`Helicone-Property-${key}`] = value as string;
-					}
-				}
-
-				// Add session tracking headers
-				if (additionalOptions.sessionId) {
-					headers['Helicone-Session-Id'] = additionalOptions.sessionId;
-				}
-				if (additionalOptions.sessionPath) {
-					headers['Helicone-Session-Path'] = additionalOptions.sessionPath;
-				}
-				if (additionalOptions.sessionName) {
-					headers['Helicone-Session-Name'] = additionalOptions.sessionName;
-				}
-
-				// Add caching headers
-				if (additionalOptions.enableCaching) {
-					headers['Helicone-Cache-Enabled'] = 'true';
-					const cacheTtl = additionalOptions.cacheTtl as number || 604800;
-					headers['Cache-Control'] = `max-age=${cacheTtl}`;
-				}
-
-				if (provider === 'openai') {
-					url = 'https://oai.helicone.ai/v1/chat/completions';
-					const openaiApiKey = this.getNodeParameter('openaiApiKey', i) as string;
-					const model = this.getNodeParameter('openaiModel', i) as string;
-
-					headers['Authorization'] = `Bearer ${openaiApiKey}`;
-					body = {
-						model,
-						messages,
-						max_tokens: maxTokens,
-						temperature,
-					};
-				} else if (provider === 'anthropic') {
-					url = 'https://anthropic.helicone.ai/v1/messages';
-					const anthropicApiKey = this.getNodeParameter('anthropicApiKey', i) as string;
-					const model = this.getNodeParameter('anthropicModel', i) as string;
-					const systemMessage = this.getNodeParameter('systemMessage', i, '') as string;
-
-					headers['x-api-key'] = anthropicApiKey;
-					headers['anthropic-version'] = '2023-06-01';
-					body = {
-						model,
-						messages,
-						max_tokens: maxTokens,
-						temperature,
-					};
-					if (systemMessage) {
-						body.system = systemMessage;
-					}
-				} else if (provider === 'azure') {
-					const azureApiKey = this.getNodeParameter('azureApiKey', i) as string;
-					const azureDomain = this.getNodeParameter('azureDomain', i) as string;
-					const deploymentName = this.getNodeParameter('azureDeploymentName', i) as string;
-					const apiVersion = this.getNodeParameter('azureApiVersion', i) as string;
-
-					url = `https://oai.helicone.ai/openai/deployments/${deploymentName}/chat/completions?api-version=${apiVersion}`;
-					headers['api-key'] = azureApiKey;
-					headers['Helicone-OpenAI-Api-Base'] = `https://${azureDomain}`;
-					body = {
-						messages,
-						max_tokens: maxTokens,
-						temperature,
-					};
-				}
-
-				const options: IHttpRequestOptions = {
-					method: 'POST',
-					url: url!,
-					headers,
-					body,
-					json: true,
-				};
-
-				const response = await this.helpers.request(options);
-				returnData.push({
-					json: response,
-					pairedItem: { item: i },
-				});
-			} catch (error) {
-				if (this.continueOnFail()) {
-					returnData.push({
-						json: { error: (error as Error).message },
-						pairedItem: { item: i },
-					});
-					continue;
-				}
-				throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
-			}
-		}
-
-		return [returnData];
-	}
+    // Return the LangChain model as expected by n8n
+    return {
+      response: chatModel
+    };
+  }
 }

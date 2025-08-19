@@ -1,4 +1,4 @@
-import {
+import type {
 	IAuthenticateGeneric,
 	ICredentialDataDecryptedObject,
 	ICredentialType,
@@ -7,24 +7,25 @@ import {
 
 export class HeliconeApi implements ICredentialType {
 	name = 'heliconeApi';
-	displayName = 'Helicone API';
+
+	displayName = 'Helicone LLM Observability';
+
 	documentationUrl = 'https://docs.helicone.ai/getting-started/quick-start';
+
 	properties: INodeProperties[] = [
 		{
 			displayName: 'API Key',
 			name: 'apiKey',
 			type: 'string',
-			typeOptions: {
-				password: true,
-			},
+			typeOptions: { password: true },
 			default: '',
 			description: 'Your Helicone API key (starts with pk- for write access or sk- for read access)',
-			required: true,
+			required: true
 		},
 		{
 			displayName: 'Base URL',
 			name: 'baseUrl',
-			type: 'string',
+			type: 'hidden',
 			default: 'https://api.helicone.ai',
 			description: 'The base URL for Helicone API. Use https://api.eu.helicone.ai for EU customers.',
 		},

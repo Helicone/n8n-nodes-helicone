@@ -1,5 +1,5 @@
-import { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription } from 'n8n-workflow';
-export declare class Helicone implements INodeType {
+import { type INodeType, type INodeTypeDescription, type ISupplyDataFunctions, type SupplyData } from "n8n-workflow";
+export declare class LmChatHelicone implements INodeType {
     description: INodeTypeDescription;
-    execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]>;
+    supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData>;
 }

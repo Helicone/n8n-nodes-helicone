@@ -4,24 +4,22 @@ exports.HeliconeApi = void 0;
 class HeliconeApi {
     constructor() {
         this.name = 'heliconeApi';
-        this.displayName = 'Helicone API';
+        this.displayName = 'Helicone LLM Observability';
         this.documentationUrl = 'https://docs.helicone.ai/getting-started/quick-start';
         this.properties = [
             {
                 displayName: 'API Key',
                 name: 'apiKey',
                 type: 'string',
-                typeOptions: {
-                    password: true,
-                },
+                typeOptions: { password: true },
                 default: '',
                 description: 'Your Helicone API key (starts with pk- for write access or sk- for read access)',
-                required: true,
+                required: true
             },
             {
                 displayName: 'Base URL',
                 name: 'baseUrl',
-                type: 'string',
+                type: 'hidden',
                 default: 'https://api.helicone.ai',
                 description: 'The base URL for Helicone API. Use https://api.eu.helicone.ai for EU customers.',
             },
