@@ -55,7 +55,8 @@
     "monitoring"
   ],
   "dependencies": {
-    "request": "^2.88.2",
-    "@langchain/openai": "^0.0.14"
+    "@langchain/openai": "^0.0.14",
+    "n8n-core": "^1.14.1",
+    "request": "^2.88.2"
   }
 }

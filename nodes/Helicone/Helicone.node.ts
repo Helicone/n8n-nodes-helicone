@@ -1,3 +1,5 @@
+import { ChatOpenAI } from "@langchain/openai";
+
 import {
   type INodeType,
   type INodeTypeDescription,
@@ -5,23 +7,23 @@ import {
   type SupplyData,
 } from "n8n-workflow";
 
-import { ChatOpenAI } from "@langchain/openai";
-
 export class LmChatHelicone implements INodeType {
   description: INodeTypeDescription = {
     displayName: "Helicone Chat Model",
     name: "lmChatHelicone",
     icon: { light: "file:helicone.svg", dark: "file:helicone.svg" },
-    group: ["ai"],
+    group: ["transform"],
     version: [1],
-    description: "For advanced usage with an AI chain through Helicone proxy",
+    description:
+      "Route requests to your chosen LLM provider through Helicone AI Gateway",
     defaults: {
       name: "Helicone Chat Model",
     },
     codex: {
       categories: ["AI"],
       subcategories: {
-        AI: ["Language Models"],
+        AI: ["Language Models", "Root Nodes"],
+        "Language Models": ["Chat Models (Recommended)"],
       },
       resources: {
         primaryDocumentation: [
@@ -32,10 +34,8 @@ export class LmChatHelicone implements INodeType {
       },
     },
 
-    // Sub-nodes have no inputs
     inputs: [],
 
-    // Sub-nodes output ai_languageModel
     outputs: ['ai_languageModel'] as any,
     outputNames: ["Model"],
     credentials: [
@@ -301,25 +301,29 @@ export class LmChatHelicone implements INodeType {
       customHeaders["anthropic-version"] = "2023-06-01";
     }
 
-     // Create the LangChain ChatOpenAI instance
-     const chatModel = new ChatOpenAI({
-       modelName: `${provider}/${modelName}`,
-       temperature: options.temperature ?? 0.7,
-       maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
-       topP: options.topP,
-       frequencyPenalty: options.frequencyPenalty,
-       presencePenalty: options.presencePenalty,
-       timeout: options.timeout ?? 60000,
-       maxRetries: options.maxRetries ?? 2,
-       configuration: {
-         baseURL,
-         defaultHeaders: customHeaders
-       },
-     });
+    // Create the LangChain ChatOpenAI instance
+    const model = new ChatOpenAI({
+      modelName: `${provider}/${modelName}`,
+      temperature: options.temperature ?? 0.7,
+      maxTokens:
+        options.maxTokens && options.maxTokens > 0
+          ? options.maxTokens
+          : undefined,
+      topP: options.topP,
+      frequencyPenalty: options.frequencyPenalty,
+      presencePenalty: options.presencePenalty,
+      timeout: options.timeout ?? 60000,
+      maxRetries: options.maxRetries ?? 2,
+      configuration: {
+        apiKey: credentials.apiKey as string,
+        baseURL,
+        defaultHeaders: customHeaders,
+      },
+    });
 
     // Return the LangChain model as expected by n8n
     return {
-      response: chatModel
+      response: model,
     };
   }
 }

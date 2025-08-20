@@ -8,16 +8,17 @@ class LmChatHelicone {
             displayName: "Helicone Chat Model",
             name: "lmChatHelicone",
             icon: { light: "file:helicone.svg", dark: "file:helicone.svg" },
-            group: ["ai"],
+            group: ["transform"],
             version: [1],
-            description: "For advanced usage with an AI chain through Helicone proxy",
+            description: "Route requests to your chosen LLM provider through Helicone AI Gateway",
             defaults: {
                 name: "Helicone Chat Model",
             },
             codex: {
                 categories: ["AI"],
                 subcategories: {
-                    AI: ["Language Models"],
+                    AI: ["Language Models", "Root Nodes"],
+                    "Language Models": ["Chat Models (Recommended)"],
                 },
                 resources: {
                     primaryDocumentation: [
@@ -27,9 +28,7 @@ class LmChatHelicone {
                     ],
                 },
             },
-            // Sub-nodes have no inputs
             inputs: [],
-            // Sub-nodes output ai_languageModel
             outputs: ['ai_languageModel'],
             outputNames: ["Model"],
             credentials: [
@@ -218,25 +217,13 @@ class LmChatHelicone {
         const modelName = this.getNodeParameter("model", itemIndex);
         const options = this.getNodeParameter("options", itemIndex, {});
         const heliconeOptions = this.getNodeParameter("heliconeOptions", itemIndex, {});
-        // Determine base URL based on provider
         let baseURL;
-        if (provider === "openai") {
-            baseURL = "https://oai.helicone.ai/v1";
-        }
-        else if (provider === "anthropic") {
-            baseURL = "https://anthropic.helicone.ai/v1";
-        }
-        else if (provider === "azure") {
-            baseURL = "https://oai.helicone.ai/v1";
-        }
-        else {
-            baseURL = "https://oai.helicone.ai/v1";
-        }
-        // Build custom headers for Helicone
+        baseURL = "https://ai-gateway.helicone.ai/v1";
+        // Build Helicone custom headers
         const customHeaders = {
             "Helicone-Auth": `Bearer ${credentials.apiKey}`,
         };
-        // Add custom properties
+        // Build Helicone custom properties
         if (heliconeOptions.customProperties) {
             try {
                 const customProps = JSON.parse(heliconeOptions.customProperties);
@@ -245,7 +232,7 @@ class LmChatHelicone {
                 }
             }
             catch (error) {
-                // Ignore JSON parsing errors for custom properties
+                console.error(error);
             }
         }
         // Add session tracking headers
@@ -268,24 +255,27 @@ class LmChatHelicone {
         if (provider === "anthropic") {
             customHeaders["anthropic-version"] = "2023-06-01";
         }
-        // Create the actual LangChain ChatOpenAI instance
-        const chatModel = new openai_1.ChatOpenAI({
-            modelName,
+        // Create the LangChain ChatOpenAI instance
+        const model = new openai_1.ChatOpenAI({
+            modelName: `${provider}/${modelName}`,
             temperature: (_a = options.temperature) !== null && _a !== void 0 ? _a : 0.7,
-            maxTokens: options.maxTokens && options.maxTokens > 0 ? options.maxTokens : undefined,
+            maxTokens: options.maxTokens && options.maxTokens > 0
+                ? options.maxTokens
+                : undefined,
             topP: options.topP,
             frequencyPenalty: options.frequencyPenalty,
             presencePenalty: options.presencePenalty,
             timeout: (_b = options.timeout) !== null && _b !== void 0 ? _b : 60000,
             maxRetries: (_c = options.maxRetries) !== null && _c !== void 0 ? _c : 2,
             configuration: {
+                apiKey: credentials.apiKey,
                 baseURL,
                 defaultHeaders: customHeaders,
             },
         });
-        // Return the actual LangChain model instance
+        // Return the LangChain model as expected by n8n
         return {
-            response: chatModel,
+            response: model,
         };
     }
 }
