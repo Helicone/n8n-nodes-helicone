@@ -1,11 +1,14 @@
 import { ChatOpenAI } from "@langchain/openai";
 
 import {
+  NodeConnectionTypes,
   type INodeType,
   type INodeTypeDescription,
   type ISupplyDataFunctions,
   type SupplyData,
 } from "n8n-workflow";
+
+import { getConnectionHintNoticeField } from "../../utils/sharedFiles";
 
 export class LmChatHelicone implements INodeType {
   description: INodeTypeDescription = {
@@ -36,7 +39,7 @@ export class LmChatHelicone implements INodeType {
 
     inputs: [],
 
-    outputs: ['ai_languageModel'] as any,
+    outputs: [NodeConnectionTypes.AiLanguageModel],
     outputNames: ["Model"],
     credentials: [
       {
@@ -45,6 +48,10 @@ export class LmChatHelicone implements INodeType {
       },
     ],
     properties: [
+      getConnectionHintNoticeField([
+        NodeConnectionTypes.AiChain,
+        NodeConnectionTypes.AiAgent,
+      ]),
       {
         displayName: "LLM Provider",
         name: "provider",
@@ -261,12 +268,10 @@ export class LmChatHelicone implements INodeType {
     let baseURL: string;
     baseURL = "https://ai-gateway.helicone.ai/v1";
 
-    // Build Helicone custom headers
     const customHeaders: Record<string, string> = {
       "Helicone-Auth": `Bearer ${credentials.apiKey}`,
     };
 
-    // Build Helicone custom properties
     if (heliconeOptions.customProperties) {
       try {
         const customProps = JSON.parse(heliconeOptions.customProperties);
@@ -278,7 +283,6 @@ export class LmChatHelicone implements INodeType {
       }
     }
 
-    // Add session tracking headers
     if (heliconeOptions.sessionId) {
       customHeaders["Helicone-Session-Id"] = heliconeOptions.sessionId;
     }
@@ -289,19 +293,16 @@ export class LmChatHelicone implements INodeType {
       customHeaders["Helicone-Session-Name"] = heliconeOptions.sessionName;
     }
 
-    // Add caching headers
     if (heliconeOptions.enableCaching) {
       customHeaders["Helicone-Cache-Enabled"] = "true";
       const cacheTtl = heliconeOptions.cacheTtl || 604800;
       customHeaders["Cache-Control"] = `max-age=${cacheTtl}`;
     }
 
-    // Add provider-specific headers
     if (provider === "anthropic") {
       customHeaders["anthropic-version"] = "2023-06-01";
     }
 
-    // Create the LangChain ChatOpenAI instance
     const model = new ChatOpenAI({
       modelName: `${provider}/${modelName}`,
       temperature: options.temperature ?? 0.7,
@@ -321,9 +322,8 @@ export class LmChatHelicone implements INodeType {
       },
     });
 
-    // Return the LangChain model as expected by n8n
     return {
-      response: model,
+      response: model
     };
   }
 }
