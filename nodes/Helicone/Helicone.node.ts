@@ -327,3 +327,6 @@ export class LmChatHelicone implements INodeType {
     };
   }
 }
+
+// Export as both names for n8n compatibility
+export { LmChatHelicone as Helicone };
