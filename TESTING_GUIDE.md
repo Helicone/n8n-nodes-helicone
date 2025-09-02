@@ -9,19 +9,34 @@
 
 ## Setup Instructions
 
-### 1. Build and Link the Node
+### 1. Build the Node
 ```bash
-npm install
-npm run build
-npm link
+pnpm install
+pnpm build
 ```
 
-### 2. Start n8n
+### 2. Set up n8n Custom Node
+Navigate to your n8n folder (usually `~/.n8n` on macOS/Linux):
 ```bash
-n8n start --tunnel
+cd ~/.n8n
+mkdir custom
+cd custom
+pnpm init
 ```
 
-### 3. Access n8n Interface
+### 3. Link the Node
+Link your built node to the n8n custom folder:
+```bash
+pnpm link /path/to/your/helicone-n8n-node
+```
+Replace `/path/to/your/helicone-n8n-node` with the actual path to your repository.
+
+### 4. Start n8n
+```bash
+n8n start
+```
+
+### 5. Access n8n Interface
 Open your browser and go to: `http://localhost:5678`
 
 ## Testing Steps

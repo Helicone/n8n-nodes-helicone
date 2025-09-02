@@ -6,30 +6,37 @@ This is an n8n community node that provides a LangChain-compatible Helicone Chat
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
-
-## Setup Instructions
-
-### 1. Build and Link the Node
+### 1. Build the Node
 Clone the repository and install dependencies:
 ```bash
 git clone https://github.com/juliettech13/helicone-n8n-node.git
 cd helicone-n8n-node
+pnpm install
+pnpm build
 ```
 
-Build the node and link it:
+### 2. Set up n8n Custom Node
+Navigate to your n8n folder (usually `~/.n8n` on macOS/Linux):
 ```bash
-npm install
-npm run build
-npm link
+cd ~/.n8n
+mkdir custom
+cd custom
+pnpm init
 ```
 
-### 2. Start n8n
+### 3. Link the Node
+Link your built node to the n8n custom folder:
 ```bash
-n8n start --tunnel
+pnpm link /path/to/your/helicone-n8n-node
+```
+Replace `/path/to/your/helicone-n8n-node` with the actual path to your repository.
+
+### 4. Start n8n
+```bash
+n8n start
 ```
 
-### 3. Access n8n Interface
+### 5. Access n8n Interface
 Open your browser and go to: `http://localhost:5678`
 
 ## 4. Add Helicone API Credentials
@@ -41,12 +48,11 @@ Open your browser and go to: `http://localhost:5678`
 
 ### 5. Create a workflow and add your Helicone Chat Model node
 
-The Helicone Chat Model node is designed to work as part of AI chains. It outputs a LangChain-compatible model that can be used with other AI nodes.
+The Helicone Chat Model node is designed to work as part of any AI chain. It outputs a LangChain-compatible model that can be used with other AI nodes.
 
 **Node Configuration:**
-1. **LLM Provider:** Choose between OpenAI, Anthropic, or Azure OpenAI
-2. **Model:** Specify the model to use (e.g., `gpt-4o-mini`, `claude-3-opus-20240229`)
-3. **Options:**
+1. **AI Model:** Choose any model supported by Helicone AI Gateway (find them here: https://helicone.ai/model - e.g, `gpt-4o-mini`, `claude-3-opus-20240229`, ).
+2. **Options:**
    - **Temperature:** Sampling temperature (0-2)
    - **Max Tokens:** Maximum number of tokens to generate
    - **Top P:** Nucleus sampling parameter (0-1)
@@ -63,28 +69,13 @@ The Helicone Chat Model node is designed to work as part of AI chains. It output
 
 ## How It Works
 
-The Helicone Chat Model node uses the [Helicone AI Gateway](https://ai-gateway.helicone.ai) to route requests to your chosen LLM provider. This provides:
+The Helicone Chat Model node uses the [Helicone AI Gateway](https://ai-gateway.helicone.ai) to route requests to your chosen LLM provider.
 
+This provides:
 - **Unified Interface:** Single endpoint for multiple providers
-- **Automatic Logging:** All requests are logged in your Helicone dashboard
+- **Automatic fallbacks:** If the primary provider is down, the node will automatically use a fallback provider.
 - **Observability:** Track usage, performance, and costs across providers
-- **Caching:** Reduce costs with intelligent response caching
-
-## Supported Providers
-
-The node supports requests to all major LLM providers through the Helicone AI Gateway:
-
-### OpenAI
-- **Models:** All OpenAI chat completion models
-- **Authentication:** Via Helicone API key
-
-### Anthropic
-- **Models:** All Claude models
-- **Authentication:** Via Helicone API key
-
-### Azure OpenAI
-- **Models:** All Azure OpenAI deployments
-- **Authentication:** Via Helicone API key
+- **Caching:** Reduce costs with intelligent response caching and reduce latency with intelligent caching.
 
 ## Usage in AI Chains
 
