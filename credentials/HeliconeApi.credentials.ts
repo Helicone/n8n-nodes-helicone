@@ -18,16 +18,9 @@ export class HeliconeApi implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'Your Helicone API key (starts with pk- for write access or sk- for read access)',
+			description: 'Your Helicone API key (starts with pk- for write access or sk- for read access). You can get your API key from your <a href="https://helicone.ai/dashboard" target="_blank">Helicone Dashboard</a>.',
 			required: true
-		},
-		{
-			displayName: 'Base URL',
-			name: 'baseUrl',
-			type: 'hidden',
-			default: 'https://api.helicone.ai',
-			description: 'The base URL for Helicone API. Use https://api.eu.helicone.ai for EU customers.',
-		},
+		}
 	];
 
 	authenticate: IAuthenticateGeneric = {

@@ -1,6 +1,6 @@
 # n8n-nodes-helicone
 
-This is an n8n community node that provides a LangChain-compatible Helicone Chat Model for use in AI chains and workflows.
+This is an n8n community node that provides a LangChain-compatible Helicone Chat Model for use in AI chains and workflows. The node routes requests to your chosen LLM provider through the Helicone AI Gateway.
 
 [Helicone](https://helicone.ai) is an open-source LLM observability platform that helps developers monitor, debug, and improve production AI applications.
 
@@ -9,14 +9,25 @@ This is an n8n community node that provides a LangChain-compatible Helicone Chat
 ### 1. Build the Node
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/juliettech13/helicone-n8n-node.git
-cd helicone-n8n-node
+git clone https://github.com/juliettech13/n8n-nodes-helicone.git
+cd n8n-nodes-helicone
 pnpm install
 pnpm build
 ```
 
-### 2. Set up n8n Custom Node
-Navigate to your n8n folder (usually `~/.n8n` on macOS/Linux):
+### 2. Install as n8n Community Node
+You can install this node as an n8n community node:
+
+```bash
+# Install via npm
+npm install n8n-nodes-helicone
+
+# Or install via pnpm
+pnpm add n8n-nodes-helicone
+```
+
+### 3. Alternative: Manual Installation
+If you prefer to install manually, navigate to your n8n folder (usually `~/.n8n` on macOS/Linux):
 ```bash
 cd ~/.n8n
 mkdir custom
@@ -24,12 +35,11 @@ cd custom
 pnpm init
 ```
 
-### 3. Link the Node
 Link your built node to the n8n custom folder:
 ```bash
-pnpm link /path/to/your/helicone-n8n-node
+pnpm link /path/to/your/n8n-nodes-helicone
 ```
-Replace `/path/to/your/helicone-n8n-node` with the actual path to your repository.
+Replace `/path/to/your/n8n-nodes-helicone` with the actual path to your repository.
 
 ### 4. Start n8n
 ```bash
@@ -39,19 +49,19 @@ n8n start
 ### 5. Access n8n Interface
 Open your browser and go to: `http://localhost:5678`
 
-## 4. Add Helicone API Credentials
+## 6. Add Helicone API Credentials
 
   - Go to **Credentials > New**
   - Select **Helicone LLM Observability**
   - Enter your Helicone API key (get it from [Helicone Dashboard](https://helicone.ai/dashboard))
-  - The base URL is automatically set to `https://ai-gateway.helicone.ai/v1`
+  - The base URL is automatically set to `https://ai-gateway.helicone.ai/`
 
-### 5. Create a workflow and add your Helicone Chat Model node
+## 7. Create a workflow and add your Helicone Chat Model node
 
 The Helicone Chat Model node is designed to work as part of any AI chain. It outputs a LangChain-compatible model that can be used with other AI nodes.
 
 **Node Configuration:**
-1. **AI Model:** Choose any model supported by Helicone AI Gateway (find them here: https://helicone.ai/model - e.g, `gpt-4o-mini`, `claude-3-opus-20240229`, ).
+1. **AI Model:** Choose any model supported by Helicone AI Gateway (find them here: https://helicone.ai/models - e.g, `gpt-4.1-mini`, `claude-3-opus-20240229`).
 2. **Options:**
    - **Temperature:** Sampling temperature (0-2)
    - **Max Tokens:** Maximum number of tokens to generate
@@ -65,17 +75,19 @@ The Helicone Chat Model node is designed to work as part of any AI chain. It out
 **Helicone Options:**
 - **Custom Properties:** JSON object for metadata and filtering
 - **Session Tracking:** Session ID, Path, and Name for grouping requests
-- **Caching:** Enable response caching with configurable TTL
+- **Caching:** Enable response caching with configurable TTL (up to 365 days)
 
 ## How It Works
 
-The Helicone Chat Model node uses the [Helicone AI Gateway](https://ai-gateway.helicone.ai) to route requests to your chosen LLM provider.
+The Helicone Chat Model node uses the [Helicone AI Gateway](https://ai-gateway.helicone.ai) to route requests to your chosen LLM provider. The node implements the `LmChatHelicone` class and provides a LangChain-compatible ChatOpenAI interface.
 
 This provides:
 - **Unified Interface:** Single endpoint for multiple providers
-- **Automatic fallbacks:** If the primary provider is down, the node will automatically use a fallback provider.
+- **Automatic fallbacks:** If the primary provider is down, the node will automatically use a fallback provider
 - **Observability:** Track usage, performance, and costs across providers
-- **Caching:** Reduce costs with intelligent response caching and reduce latency with intelligent caching.
+- **Caching:** Reduce costs with intelligent response caching and reduce latency with intelligent caching
+- **Session Tracking:** Group related requests with session management
+- **Custom Properties:** Add metadata for filtering and analysis
 
 ## Usage in AI Chains
 
@@ -142,4 +154,5 @@ MIT
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [Helicone documentation](https://docs.helicone.ai)
 - [Helicone GitHub](https://github.com/Helicone/helicone)
+- [This Node's GitHub](https://github.com/juliettech13/n8n-nodes-helicone)
 - [LangChain documentation](https://js.langchain.com/)

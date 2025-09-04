@@ -20,7 +20,7 @@ export class LmChatHelicone implements INodeType {
 		description:
       'Route requests to your chosen LLM provider through Helicone AI Gateway',
 		defaults: {
-			name: 'Helicone Chat Model',
+			name: 'Helicone AI Gateway',
 		},
 		codex: {
 			categories: ['AI'],
@@ -50,35 +50,14 @@ export class LmChatHelicone implements INodeType {
 		properties: [
 			getConnectionHintNoticeField([
 				NodeConnectionTypes.AiChain,
-				NodeConnectionTypes.AiAgent,
+				NodeConnectionTypes.AiAgent
 			]),
-			{
-				displayName: 'LLM Provider',
-				name: 'provider',
-				type: 'options',
-				options: [
-					{
-						name: 'OpenAI',
-						value: 'openai',
-					},
-					{
-						name: 'Anthropic',
-						value: 'anthropic',
-					},
-					{
-						name: 'Azure OpenAI',
-						value: 'azure',
-					},
-				],
-				default: 'openai',
-				description: 'The LLM provider to use through Helicone proxy',
-			},
 			{
 				displayName: 'Model',
 				name: 'model',
 				type: 'string',
-				description: 'Select the model to use to generate the completion',
-				default: 'gpt-4o-mini',
+				description: 'Select the model to use to generate the completion, we pick the fastest provider for you. See the <a href="https://helicone.ai/models" target="_blank">list of supported models</a>. If you want to use your own provider API keys, make sure to set these up in your <a href="https://helicone.ai/dashboard" target="_blank">Helicone Dashboard</a>.',
+				default: 'gpt-4.1-mini',
 			},
 			{
 				displayName: 'Options',
@@ -238,11 +217,10 @@ export class LmChatHelicone implements INodeType {
 	): Promise<SupplyData> {
 		const credentials = await this.getCredentials('heliconeApi');
 
-		const provider = this.getNodeParameter('provider', itemIndex) as string;
 		const modelName = this.getNodeParameter('model', itemIndex) as string;
 
 		const options = this.getNodeParameter('options', itemIndex, {}) as {
-			frequencyPenalty?: number;
+      frequencyPenalty?: number;
 			maxTokens?: number;
 			maxRetries: number;
 			timeout: number;
@@ -265,11 +243,9 @@ export class LmChatHelicone implements INodeType {
 			cacheTtl?: number;
 		};
 
-		const baseURL = 'https://ai-gateway.helicone.ai/v1';
+		const baseURL = 'https://ai-gateway.helicone.ai/';
 
-		const customHeaders: Record<string, string> = {
-			'Helicone-Auth': `Bearer ${credentials.apiKey}`,
-		};
+		const customHeaders: Record<string, string> = {};
 
 		if (heliconeOptions.customProperties) {
 			try {
@@ -298,12 +274,8 @@ export class LmChatHelicone implements INodeType {
 			customHeaders['Cache-Control'] = `max-age=${cacheTtl}`;
 		}
 
-		if (provider === 'anthropic') {
-			customHeaders['anthropic-version'] = '2023-06-01';
-		}
-
 		const model = new ChatOpenAI({
-			modelName: `${provider}/${modelName}`,
+			modelName,
 			temperature: options.temperature ?? 0.7,
 			maxTokens:
 				options.maxTokens && options.maxTokens > 0
@@ -315,9 +287,9 @@ export class LmChatHelicone implements INodeType {
 			timeout: options.timeout ?? 60000,
 			maxRetries: options.maxRetries ?? 2,
 			configuration: {
-				apiKey: credentials.apiKey as string,
+				apiKey: credentials.apiKey.toString(),
 				baseURL,
-				defaultHeaders: customHeaders,
+				defaultHeaders: customHeaders
 			},
 		});
 
@@ -327,5 +299,4 @@ export class LmChatHelicone implements INodeType {
 	}
 }
 
-// Export as both names for n8n compatibility
 export { LmChatHelicone as Helicone };
