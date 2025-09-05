@@ -9,7 +9,7 @@ This is an n8n community node that provides a LangChain-compatible Helicone Chat
 ### 1. Build the Node
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/juliettech13/n8n-nodes-helicone.git
+git clone https://github.com/helicone/n8n-nodes-helicone.git
 cd n8n-nodes-helicone
 pnpm install
 pnpm build
