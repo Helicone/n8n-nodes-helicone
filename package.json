@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-helicone",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "n8n node for Helicone LLM observability and AI gateway",
   "license": "MIT",
   "homepage": "https://helicone.ai",
@@ -28,8 +28,8 @@
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
+    "lint": "eslint nodes credentials",
+    "lintfix": "eslint nodes credentials --fix",
     "prepublishOnly": "npm run build && npm run lint -s"
   },
   "files": [
@@ -57,10 +57,11 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
+    "@langchain/openai": ">=0.0.14",
     "n8n-workflow": "*"
   },
   "dependencies": {
-    "@langchain/openai": "^1.0.0",
-    "zod": "^4.1.12"
+    "n8n-nodes-helicone": "^1.0.2",
+    "zod": "^3.23.0"
   }
 }

@@ -18,7 +18,7 @@ export class HeliconeApi implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
- 			description: 'Your Helicone API key. Get it from your <a href="https://us.helicone.ai/api-keys" target="_blank">Helicone dashboard</a>. You can also add your LLM provider keys (OpenAI, Anthropic, etc.) if your prefer to BYOK <a href="https://us.helicone.ai/settings/providers" target="_blank">here</a>.',
+			description: 'Your Helicone API key. Get it from your <a href="https://us.helicone.ai/api-keys" target="_blank">Helicone dashboard</a>. You can also add your LLM provider keys (OpenAI, Anthropic, etc.) if your prefer to BYOK <a href="https://us.helicone.ai/settings/providers" target="_blank">here</a>.',
 			required: true
 		}
 	];
