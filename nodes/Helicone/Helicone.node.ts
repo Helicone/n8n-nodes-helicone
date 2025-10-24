@@ -243,7 +243,7 @@ export class LmChatHelicone implements INodeType {
 			cacheTtl?: number;
 		};
 
-		const baseURL = 'https://ai-gateway.helicone.ai/';
+		const baseURL = 'https://ai-gateway.helicone.ai';
 
 		const customHeaders: Record<string, string> = {};
 
@@ -285,12 +285,11 @@ export class LmChatHelicone implements INodeType {
 			frequencyPenalty: options.frequencyPenalty,
 			presencePenalty: options.presencePenalty,
 			timeout: options.timeout ?? 60000,
-			maxRetries: options.maxRetries ?? 2,
 			configuration: {
 				apiKey: credentials.apiKey.toString(),
 				baseURL,
 				defaultHeaders: customHeaders
-			},
+			}
 		});
 
 		return {
