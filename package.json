@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-helicone",
   "version": "1.0.3",
-  "description": "n8n node for Helicone LLM observability and AI gateway",
+  "description": "n8n node for Helicone AI gateway and observability",
   "license": "MIT",
   "homepage": "https://helicone.ai",
   "keywords": [
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/juliettech13/helicone-n8n-node.git"
+    "url": "git+https://github.com/Helicone/n8n-nodes-helicone"
   },
   "main": "dist/index.js",
   "scripts": {
